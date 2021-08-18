@@ -83,7 +83,7 @@ namespace HEXCTRL::INTERNAL
 		HEXMODIFY hms;
 		hms.enModifyMode = EHexModifyMode::MODIFY_DEFAULT;
 		hms.spnData = { reinterpret_cast<std::byte*>(&tData), sizeof(T) };
-		hms.vecSpan.emplace_back(HEXSPAN { ullOffset, sizeof(T) });
+		hms.vecOffset.emplace_back(HEXOFFSET { ullOffset, sizeof(T) });
 		refHexCtrl.ModifyData(hms);
 	}
 
