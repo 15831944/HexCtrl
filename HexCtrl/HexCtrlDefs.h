@@ -274,7 +274,7 @@ namespace HEXCTRL
 	* then block by block replacement takes place few times.                                    *
 	*   For example : if SUM(vecSpan.ullSize) = 9, ullDataSize = 3 and enModifyMode is set to   *
 	* EHexModifyMode::MODIFY_REPEAT, bytes in memory at vecSpan.ullOffset position are          *
-	* 123456789, and bytes pointed to by pData are 345, then, after modification, bytes at      *
+	* 123456789, and bytes pointed to by spnData are 345, then, after modification, bytes at    *
 	* vecSpan.ullOffset will be 345345345.                                                      *
 	* If enModifyMode is equal to MODIFY_OPERATION then enOperMode comes into play, showing     *
 	* what kind of operation must be performed on data, with the enOperSize showing the size.   *
@@ -284,8 +284,7 @@ namespace HEXCTRL
 		EHexModifyMode       enModifyMode { EHexModifyMode::MODIFY_DEFAULT }; //Modify mode.
 		EHexOperMode         enOperMode { };       //Operation mode, used only in MODIFY_OPERATION mode.
 		EHexDataSize         enOperSize { };       //Operation data size.
-		std::byte*           pData { };            //Pointer to a data to be set.
-		ULONGLONG            ullDataSize { };      //Size of the data pData is pointing to.
+		std::span<std::byte> spnData { };          //Data span.
 		std::vector<HEXSPAN> vecSpan { };          //Vector of data offsets and sizes.
 		bool                 fBigEndian { false }; //Treat the data as a big endian, used only in MODIFY_OPERATION mode.
 	};

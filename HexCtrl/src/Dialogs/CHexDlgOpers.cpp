@@ -214,7 +214,7 @@ void CHexDlgOpers::OnOK()
 		hms.vecSpan = m_pHexCtrl->GetSelection();
 
 	hms.fBigEndian = fBigEndian;
-	hms.pData = reinterpret_cast<std::byte*>(&llData);
+	hms.spnData = { reinterpret_cast<std::byte*>(&llData), sizeof(llData) };
 	m_pHexCtrl->ModifyData(hms);
 	m_pHexCtrl->Redraw();
 	::SetFocus(m_pHexCtrl->GetWindowHandle(EHexWnd::WND_MAIN));

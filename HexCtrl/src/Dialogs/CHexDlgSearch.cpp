@@ -1135,8 +1135,7 @@ void CHexDlgSearch::Replace(ULONGLONG ullIndex, std::byte* pData, size_t nSizeDa
 {
 	HEXMODIFY hms;
 	hms.vecSpan.emplace_back(HEXSPAN { ullIndex, nSizeData });
-	hms.ullDataSize = nSizeReplace;
-	hms.pData = pData;
+	hms.spnData = { pData, nSizeReplace };
 	GetHexCtrl()->ModifyData(hms);
 }
 

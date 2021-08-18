@@ -130,18 +130,15 @@ void CHexDlgFillData::OnOK()
 			MessageBoxW(L"Wrong Hex format!", L"Format Error", MB_ICONERROR);
 			return;
 		}
-		hms.pData = reinterpret_cast<std::byte*>(strToFill.data());
-		hms.ullDataSize = strToFill.size();
+		hms.spnData = { reinterpret_cast<std::byte*>(strToFill.data()), strToFill.size() };
 		hms.enModifyMode = EHexModifyMode::MODIFY_REPEAT;
 		break;
 	case EFillType::FILL_ASCII:
-		hms.pData = reinterpret_cast<std::byte*>(strToFill.data());
-		hms.ullDataSize = strToFill.size();
+		hms.spnData = { reinterpret_cast<std::byte*>(strToFill.data()), strToFill.size() };
 		hms.enModifyMode = EHexModifyMode::MODIFY_REPEAT;
 		break;
 	case EFillType::FILL_WCHAR:
-		hms.pData = reinterpret_cast<std::byte*>(wstrComboText.data());
-		hms.ullDataSize = static_cast<ULONGLONG>(wstrComboText.size()) * sizeof(WCHAR);
+		hms.spnData = { reinterpret_cast<std::byte*>(wstrComboText.data()), wstrComboText.size() * sizeof(WCHAR) };
 		hms.enModifyMode = EHexModifyMode::MODIFY_REPEAT;
 		break;
 	case EFillType::FILL_RANDOM:

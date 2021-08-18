@@ -1031,7 +1031,7 @@ void CHexCtrl::ModifyData(const HEXMODIFY& hms)
 				const auto ullSize = (ullChunks == 1 && iMod > 0) ? iMod : ullSizeChunk;
 				if (const auto spnData = GetData({ ullOffset, ullSize }); !spnData.empty())
 				{
-					std::copy_n(hms.pData + ullOffset, ullSize, spnData.data());
+					std::copy_n(hms.spnData.data() + ullOffset, ullSize, spnData.data());
 					SetDataVirtual(spnData, { ullOffset, ullSize });
 				}
 				ullOffset += ullSize;
@@ -1040,7 +1040,7 @@ void CHexCtrl::ModifyData(const HEXMODIFY& hms)
 		else {
 			if (const auto spnData = GetData(vecSpanRef[0]); !spnData.empty())
 			{
-				std::copy_n(hms.pData, static_cast<size_t>(vecSpanRef[0].ullSize), spnData.data());
+				std::copy_n(hms.spnData.data(), static_cast<size_t>(vecSpanRef[0].ullSize), spnData.data());
 				SetDataVirtual(spnData, vecSpanRef[0]);
 			}
 		}
@@ -1064,9 +1064,9 @@ void CHexCtrl::ModifyData(const HEXMODIFY& hms)
 		constexpr auto lmbRepeat = [](std::byte* pData, const HEXMODIFY& hms)
 		{
 			assert(pData != nullptr);
-			std::copy_n(hms.pData, static_cast<size_t>(hms.ullDataSize), pData);
+			std::copy_n(hms.spnData.data(), hms.spnData.size(), pData);
 		};
-		ModifyWorker(hms, lmbRepeat, hms.ullDataSize);
+		ModifyWorker(hms, lmbRepeat, hms.spnData.size());
 	}
 	break;
 	case EHexModifyMode::MODIFY_OPERATION:
@@ -1162,21 +1162,21 @@ void CHexCtrl::ModifyData(const HEXMODIFY& hms)
 				switch (hms.enOperSize)
 				{
 				case EHexDataSize::SIZE_BYTE:
-					lmbOper(reinterpret_cast<PBYTE>(pData), hms.enOperMode, *reinterpret_cast<PBYTE>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PBYTE>(pData), hms.enOperMode, *reinterpret_cast<PBYTE>(hms.spnData.data()), lmbSwap);
 					break;
 				case EHexDataSize::SIZE_WORD:
 					lmbSwap(reinterpret_cast<PWORD>(pData));
-					lmbOper(reinterpret_cast<PWORD>(pData), hms.enOperMode, *reinterpret_cast<PWORD>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PWORD>(pData), hms.enOperMode, *reinterpret_cast<PWORD>(hms.spnData.data()), lmbSwap);
 					lmbSwap(reinterpret_cast<PWORD>(pData));
 					break;
 				case EHexDataSize::SIZE_DWORD:
 					lmbSwap(reinterpret_cast<PDWORD>(pData));
-					lmbOper(reinterpret_cast<PDWORD>(pData), hms.enOperMode, *reinterpret_cast<PDWORD>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PDWORD>(pData), hms.enOperMode, *reinterpret_cast<PDWORD>(hms.spnData.data()), lmbSwap);
 					lmbSwap(reinterpret_cast<PDWORD>(pData));
 					break;
 				case EHexDataSize::SIZE_QWORD:
 					lmbSwap(reinterpret_cast<PQWORD>(pData));
-					lmbOper(reinterpret_cast<PQWORD>(pData), hms.enOperMode, *reinterpret_cast<PQWORD>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PQWORD>(pData), hms.enOperMode, *reinterpret_cast<PQWORD>(hms.spnData.data()), lmbSwap);
 					lmbSwap(reinterpret_cast<PQWORD>(pData));
 					break;
 				}
@@ -1186,16 +1186,16 @@ void CHexCtrl::ModifyData(const HEXMODIFY& hms)
 				switch (hms.enOperSize)
 				{
 				case EHexDataSize::SIZE_BYTE:
-					lmbOper(reinterpret_cast<PBYTE>(pData), hms.enOperMode, *reinterpret_cast<PBYTE>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PBYTE>(pData), hms.enOperMode, *reinterpret_cast<PBYTE>(hms.spnData.data()), lmbSwap);
 					break;
 				case EHexDataSize::SIZE_WORD:
-					lmbOper(reinterpret_cast<PWORD>(pData), hms.enOperMode, *reinterpret_cast<PWORD>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PWORD>(pData), hms.enOperMode, *reinterpret_cast<PWORD>(hms.spnData.data()), lmbSwap);
 					break;
 				case EHexDataSize::SIZE_DWORD:
-					lmbOper(reinterpret_cast<PDWORD>(pData), hms.enOperMode, *reinterpret_cast<PDWORD>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PDWORD>(pData), hms.enOperMode, *reinterpret_cast<PDWORD>(hms.spnData.data()), lmbSwap);
 					break;
 				case EHexDataSize::SIZE_QWORD:
-					lmbOper(reinterpret_cast<PQWORD>(pData), hms.enOperMode, *reinterpret_cast<PQWORD>(hms.pData), lmbSwap);
+					lmbOper(reinterpret_cast<PQWORD>(pData), hms.enOperMode, *reinterpret_cast<PQWORD>(hms.spnData.data()), lmbSwap);
 					break;
 				}
 			}
@@ -2058,8 +2058,8 @@ void CHexCtrl::ClipboardPaste(EClipboard enType)
 		if (m_ullCaretPos + ullSize > ullDataSize)
 			ullSize = ullDataSize - m_ullCaretPos;
 
-		hmd.pData = reinterpret_cast<std::byte*>(pszClipboardData);
-		ullSizeToModify = hmd.ullDataSize = ullSize;
+		hmd.spnData = { reinterpret_cast<std::byte*>(pszClipboardData), ullSize };
+		ullSizeToModify = ullSize;
 		break;
 	case EClipboard::PASTE_HEX:
 	{
@@ -2091,8 +2091,8 @@ void CHexCtrl::ClipboardPaste(EClipboard enType)
 			}
 			strData += chNumber;
 		}
-		hmd.pData = reinterpret_cast<std::byte*>(strData.data());
-		ullSizeToModify = hmd.ullDataSize = strData.size();
+		hmd.spnData = { reinterpret_cast<std::byte*>(strData.data()), strData.size() };
+		ullSizeToModify = strData.size();
 	}
 	break;
 	default:
@@ -3196,10 +3196,9 @@ void CHexCtrl::FillWithZeros()
 
 	HEXMODIFY hms;
 	hms.vecSpan = GetSelection();
-	hms.ullDataSize = sizeof(BYTE);
 	hms.enModifyMode = EHexModifyMode::MODIFY_REPEAT;
 	std::byte byteZero { 0 };
-	hms.pData = &byteZero;
+	hms.spnData = { &byteZero, sizeof(byteZero) };
 	ModifyData(hms);
 	Redraw();
 }
@@ -4310,8 +4309,7 @@ void CHexCtrl::OnChar(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 
 	HEXMODIFY hms;
 	hms.vecSpan.emplace_back(HEXSPAN { m_ullCaretPos, 1 });
-	hms.ullDataSize = sizeof(BYTE);
-	hms.pData = reinterpret_cast<std::byte*>(&chByte);
+	hms.spnData = { reinterpret_cast<std::byte*>(&chByte), sizeof(chByte) };
 	ModifyData(hms);
 	CaretMoveRight();
 }
@@ -4496,8 +4494,7 @@ void CHexCtrl::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT nFlags)
 
 		HEXMODIFY hms;
 		hms.vecSpan.emplace_back(HEXSPAN { m_ullCaretPos, 1 });
-		hms.ullDataSize = sizeof(BYTE);
-		hms.pData = reinterpret_cast<std::byte*>(&chByte);
+		hms.spnData = { reinterpret_cast<std::byte*>(&chByte), sizeof(chByte) };
 		ModifyData(hms);
 		CaretMoveRight();
 	}
